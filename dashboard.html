@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Social & Adolescenti</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+<style>
+/* ════════════════════════════════════════
+   DESIGN TOKENS — modifica qui
+   ════════════════════════════════════════ */
+:root {
+  --bg:           #0a0a0a;
+  --surface:      #101418;
+  --surface2:     #161c22;
+  --border:       #1e2630;
+
+  --blue-hi:      #4a7fd4;
+  --blue-mid:     #2d5a9e;
+  --blue-low:     #1a3560;
+  --blue-ghost:   #0c1a2e;
+
+  --cream:        #f0e8d8;
+  --cream-mid:    #a89880;
+  --cream-dim:    #504538;
+
+  --font-display: 'DM Serif Display', Georgia, serif;
+  --font-body:    'DM Sans', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', monospace;
+
+  --t: 0.3s cubic-bezier(0.4,0,0.2,1);
+
+  /* Password — cambia questa stringa */
+  --password: 'tesi2025';
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--cream);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Grid bg */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(74,127,212,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,127,212,.03) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events:none; z-index:0;
+}
+
+/* ── PASSWORD SCREEN ── */
+#pw-screen {
+  position:fixed; inset:0;
+  background: var(--bg);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  z-index:999;
+  gap: 24px;
+}
+#pw-screen.hidden { display:none; }
+
+.pw-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--blue-hi);
+  letter-spacing: .2em;
+  text-transform: uppercase;
+}
+
+.pw-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px,4vw,48px);
+  color: var(--cream);
+  text-align:center;
+  line-height:1.1;
+}
+
+.pw-input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--cream);
+  font-family: var(--font-mono);
+  font-size: 20px;
+  letter-spacing: .3em;
+  padding: 16px 32px;
+  text-align:center;
+  outline:none;
+  width: 280px;
+  transition: border-color var(--t);
+}
+.pw-input:focus { border-color: var(--blue-hi); }
+.pw-input.error { border-color: #8a2d2d; animation: shake .3s ease; }
+
+@keyframes shake {
+  0%,100%{transform:translateX(0)}
+  25%{transform:translateX(-8px)}
+  75%{transform:translateX(8px)}
+}
+
+.pw-btn {
+  background: var(--blue-mid);
+  border: 1px solid var(--blue-low);
+  border-radius: 6px;
+  color: var(--cream);
+  font-family: var(--font-body);
+  font-size:14px; font-weight:600;
+  padding: 14px 40px;
+  cursor:pointer;
+  transition: all var(--t);
+  letter-spacing:.04em;
+}
+.pw-btn:hover { background: var(--blue-hi); }
+
+/* ── MAIN DASHBOARD ── */
+#dashboard { position:relative; z-index:1; display:none; }
+#dashboard.visible { display:block; }
+
+/* ── TOPBAR ── */
+.dash-topbar {
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 16px 40px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(10,10,10,.92);
+  backdrop-filter: blur(12px);
+  position:sticky; top:0; z-index:100;
+  gap: 16px;
+}
+
+.dash-brand {
+  font-family: var(--font-mono);
+  font-size:11px; color: var(--blue-hi);
+  letter-spacing:.15em; text-transform:uppercase;
+}
+
+.dash-stats {
+  display:flex; gap:32px; align-items:center;
+}
+
+.dash-stat {
+  font-family: var(--font-mono);
+  font-size:11px; color: var(--cream-dim);
+  display:flex; flex-direction:column; gap:2px;
+}
+.dash-stat strong {
+  font-size:18px; font-weight:600;
+  color: var(--cream); letter-spacing:-.02em;
+}
+
+.dash-actions { display:flex; gap:12px; }
+
+.btn-dash {
+  font-family: var(--font-body);
+  font-size:12px; font-weight:600;
+  padding: 8px 20px;
+  border-radius:4px; cursor:pointer;
+  transition: all var(--t); letter-spacing:.04em;
+  border: 1px solid var(--border);
+}
+.btn-export {
+  background: var(--blue-mid); color: var(--cream);
+  border-color: var(--blue-low);
+}
+.btn-export:hover { background: var(--blue-hi); }
+.btn-refresh {
+  background: transparent; color: var(--cream-mid);
+}
+.btn-refresh:hover { color: var(--cream); border-color: var(--cream-dim); }
+
+.live-dot {
+  width:6px; height:6px; border-radius:50%;
+  background: #2d7a5a;
+  animation: blink 2s infinite;
+  display:inline-block;
+  box-shadow: 0 0 6px #2d7a5a;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* ── HERO ── */
+.dash-hero {
+  padding: 48px 40px 32px;
+  max-width:1400px; margin:0 auto;
+  border-bottom: 1px solid var(--border);
+}
+
+.dash-eyebrow {
+  font-family: var(--font-mono);
+  font-size:10px; color: var(--blue-hi);
+  letter-spacing:.2em; text-transform:uppercase;
+  margin-bottom:12px;
+  display:flex; align-items:center; gap:10px;
+}
+.dash-eyebrow::before {
+  content:''; display:block;
+  width:20px; height:1px; background:var(--blue-hi);
+}
+
+.dash-title {
+  font-family: var(--font-display);
+  font-size: clamp(28px,3.5vw,52px);
+  font-weight:400; line-height:1.05;
+  letter-spacing:-.01em;
+  color: var(--cream);
+}
+.dash-title em { font-style:italic; color: var(--blue-hi); }
+
+/* ── QUESTION SELECTOR ── */
+.q-selector-wrap {
+  padding: 24px 40px;
+  max-width:1400px; margin:0 auto;
+  border-bottom: 1px solid var(--border);
+}
+
+.q-selector-label {
+  font-family: var(--font-mono);
+  font-size:10px; color: var(--cream-dim);
+  letter-spacing:.15em; text-transform:uppercase;
+  margin-bottom:12px;
+}
+
+.q-selector {
+  display:flex; gap:8px; flex-wrap:wrap;
+}
+
+.q-pill {
+  font-family: var(--font-mono);
+  font-size:11px; font-weight:600;
+  padding: 6px 14px;
+  border-radius:20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--cream-dim);
+  cursor:pointer;
+  transition: all var(--t);
+  letter-spacing:.05em;
+}
+.q-pill:hover { border-color: var(--blue-low); color: var(--cream-mid); }
+.q-pill.active {
+  background: var(--blue-ghost);
+  border-color: var(--blue-hi);
+  color: var(--blue-hi);
+}
+
+.q-text-display {
+  margin-top:16px;
+  font-family: var(--font-display);
+  font-size:clamp(16px,2vw,22px);
+  color: var(--cream);
+  line-height:1.3;
+  min-height:30px;
+}
+
+/* ── CHARTS GRID ── */
+.charts-grid {
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:1px;
+  background: var(--border);
+  max-width:1400px; margin:0 auto;
+}
+
+.chart-cell {
+  background: var(--bg);
+  padding: 32px;
+  position:relative;
+}
+
+.chart-header {
+  display:flex; align-items:flex-start;
+  justify-content:space-between;
+  margin-bottom:24px;
+}
+
+.chart-meta {
+  display:flex; flex-direction:column; gap:4px;
+}
+
+.chart-num {
+  font-family: var(--font-mono);
+  font-size:10px; color: var(--blue-hi);
+  letter-spacing:.2em;
+}
+
+.chart-name {
+  font-family: var(--font-body);
+  font-size:15px; font-weight:600;
+  color: var(--cream);
+}
+
+.chart-desc {
+  font-family: var(--font-mono);
+  font-size:10px; color: var(--cream-dim);
+  letter-spacing:.05em;
+}
+
+.btn-svg {
+  font-family: var(--font-mono);
+  font-size:9px; font-weight:600;
+  padding: 5px 12px;
+  border-radius:3px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--cream-dim);
+  cursor:pointer;
+  transition: all var(--t);
+  letter-spacing:.1em;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.btn-svg:hover { border-color: var(--blue-hi); color: var(--blue-hi); }
+
+/* Canvas / SVG containers */
+.chart-canvas-wrap {
+  width:100%; position:relative;
+}
+canvas { display:block; width:100% !important; }
+svg.chart-svg { display:block; width:100%; overflow:visible; }
+
+/* ── LEGEND ── */
+.legend {
+  display:flex; flex-wrap:wrap; gap:12px;
+  margin-top:16px;
+}
+.legend-item {
+  display:flex; align-items:center; gap:6px;
+  font-family: var(--font-mono);
+  font-size:10px; color: var(--cream-dim);
+}
+.legend-dot {
+  width:8px; height:8px; border-radius:50%;
+  flex-shrink:0;
+}
+
+/* ── WORD CLOUD SECTION (full width) ── */
+.chart-cell.full-width {
+  grid-column: 1 / -1;
+}
+
+/* ── LOADING ── */
+.chart-loading {
+  display:flex; align-items:center; justify-content:center;
+  height:260px;
+  font-family: var(--font-mono);
+  font-size:11px; color: var(--cream-dim);
+  letter-spacing:.1em;
+  gap:12px;
+}
+.loading-ring {
+  width:20px; height:20px; border-radius:50%;
+  border: 2px solid var(--border);
+  border-top-color: var(--blue-hi);
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ── FOOTER ── */
+.dash-footer {
+  padding: 24px 40px;
+  border-top: 1px solid var(--border);
+  display:flex; justify-content:space-between; align-items:center;
+  max-width:1400px; margin:0 auto;
+}
+.footer-note {
+  font-family: var(--font-mono);
+  font-size:10px; color: var(--cream-dim);
+  letter-spacing:.08em;
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px) {
+  .charts-grid { grid-template-columns: 1fr; }
+  .chart-cell.full-width { grid-column:1; }
+  .dash-topbar, .dash-hero, .q-selector-wrap { padding-left:20px; padding-right:20px; }
+  .chart-cell { padding:20px; }
+  .dash-stats { gap:16px; }
+  .dash-stat strong { font-size:14px; }
+}
+
+@media(max-width:600px) {
+  .dash-stats { display:none; }
+  .dash-actions { gap:8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ PASSWORD SCREEN ══════════════════════ -->
+<div id="pw-screen">
+  <div class="pw-label">Accesso riservato — Tesi Fracchetti</div>
+  <div class="pw-title">Dashboard<br><em style="font-style:italic;color:var(--blue-hi)">Ricerca</em></div>
+  <input class="pw-input" id="pw-input" type="password"
+         placeholder="••••••••"
+         onkeydown="if(event.key==='Enter') checkPw()">
+  <button class="pw-btn" onclick="checkPw()">Accedi</button>
+  <div style="font-family:var(--font-mono);font-size:9px;color:var(--cream-dim);letter-spacing:.1em;margin-top:8px;">
+    FRACCHETTI MARCO — TESI 2024/25
+  </div>
+</div>
+
+<!-- ══ DASHBOARD ════════════════════════════ -->
+<div id="dashboard">
+
+  <!-- TOPBAR -->
+  <div class="dash-topbar">
+    <div class="dash-brand">Social &amp; Adolescenti — Dashboard</div>
+    <div class="dash-stats">
+      <div class="dash-stat">
+        <span>Risposte totali</span>
+        <strong id="stat-total">—</strong>
+      </div>
+      <div class="dash-stat">
+        <span>Profili attivi</span>
+        <strong id="stat-profiles">—</strong>
+      </div>
+      <div class="dash-stat">
+        <span>Ultima risposta</span>
+        <strong id="stat-last">—</strong>
+      </div>
+      <div class="dash-stat">
+        <span style="display:flex;align-items:center;gap:6px;">
+          <span class="live-dot"></span> Live
+        </span>
+        <strong id="stat-refresh">—</strong>
+      </div>
+    </div>
+    <div class="dash-actions">
+      <button class="btn-dash btn-refresh" onclick="loadData()">↻ Aggiorna</button>
+      <button class="btn-dash btn-export" onclick="exportAllSVG()">↓ Esporta SVG</button>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="dash-hero">
+    <div class="dash-eyebrow">Visualizzazione dati — 6 grafici</div>
+    <div class="dash-title">Come i <em>social media</em> influenzano<br>la crescita degli adolescenti?</div>
+  </div>
+
+  <!-- QUESTION SELECTOR -->
+  <div class="q-selector-wrap">
+    <div class="q-selector-label">Seleziona domanda da visualizzare</div>
+    <div class="q-selector" id="q-pills">
+      <!-- generato via JS -->
+    </div>
+    <div class="q-text-display" id="q-text-display">—</div>
+  </div>
+
+  <!-- CHARTS GRID -->
+  <div class="charts-grid" id="charts-grid">
+
+    <!-- 1. DONUT -->
+    <div class="chart-cell" id="cell-donut">
+      <div class="chart-header">
+        <div class="chart-meta">
+          <div class="chart-num">01 / 06</div>
+          <div class="chart-name">Distribuzione risposte</div>
+          <div class="chart-desc">DONUT — proporzioni per profilo</div>
+        </div>
+        <button class="btn-svg" onclick="exportSVG('svg-donut','donut')">SVG ↓</button>
+      </div>
+      <div class="chart-canvas-wrap">
+        <svg id="svg-donut" class="chart-svg" height="280"></svg>
+      </div>
+      <div class="legend" id="legend-donut"></div>
+    </div>
+
+    <!-- 2. SCATTER -->
+    <div class="chart-cell" id="cell-scatter">
+      <div class="chart-header">
+        <div class="chart-meta">
+          <div class="chart-num">02 / 06</div>
+          <div class="chart-name">Età per risposta</div>
+          <div class="chart-desc">SCATTER — ogni punto è un partecipante</div>
+        </div>
+        <button class="btn-svg" onclick="exportSVG('svg-scatter','scatter')">SVG ↓</button>
+      </div>
+      <div class="chart-canvas-wrap">
+        <svg id="svg-scatter" class="chart-svg" height="280"></svg>
+      </div>
+      <div class="legend" id="legend-scatter"></div>
+    </div>
+
+    <!-- 3. RADAR -->
+    <div class="chart-cell" id="cell-radar">
+      <div class="chart-header">
+        <div class="chart-meta">
+          <div class="chart-num">03 / 06</div>
+          <div class="chart-name">Confronto tra profili</div>
+          <div class="chart-desc">RADAR — sovrapposizione per categoria</div>
+        </div>
+        <button class="btn-svg" onclick="exportSVG('svg-radar','radar')">SVG ↓</button>
+      </div>
+      <div class="chart-canvas-wrap">
+        <svg id="svg-radar" class="chart-svg" height="300"></svg>
+      </div>
+      <div class="legend" id="legend-radar"></div>
+    </div>
+
+    <!-- 4. BEESWARM -->
+    <div class="chart-cell" id="cell-beeswarm">
+      <div class="chart-header">
+        <div class="chart-meta">
+          <div class="chart-num">04 / 06</div>
+          <div class="chart-name">Ogni risposta è un punto</div>
+          <div class="chart-desc">BEESWARM — densità visiva per opzione</div>
+        </div>
+        <button class="btn-svg" onclick="exportSVG('svg-beeswarm','beeswarm')">SVG ↓</button>
+      </div>
+      <div class="chart-canvas-wrap">
+        <svg id="svg-beeswarm" class="chart-svg" height="280"></svg>
+      </div>
+      <div class="legend" id="legend-beeswarm"></div>
+    </div>
+
+    <!-- 5. STREAM -->
+    <div class="chart-cell" id="cell-stream">
+      <div class="chart-header">
+        <div class="chart-meta">
+          <div class="chart-num">05 / 06</div>
+          <div class="chart-name">Flusso tra profili</div>
+          <div class="chart-desc">STREAM — percentuali per categoria</div>
+        </div>
+        <button class="btn-svg" onclick="exportSVG('svg-stream','stream')">SVG ↓</button>
+      </div>
+      <div class="chart-canvas-wrap">
+        <svg id="svg-stream" class="chart-svg" height="280"></svg>
+      </div>
+      <div class="legend" id="legend-stream"></div>
+    </div>
+
+    <!-- 6. WORD CLOUD (full width) -->
+    <div class="chart-cell full-width" id="cell-wordcloud">
+      <div class="chart-header">
+        <div class="chart-meta">
+          <div class="chart-num">06 / 06</div>
+          <div class="chart-name">Nuvola tipografica — domanda aperta</div>
+          <div class="chart-desc">WORD CLOUD — frequenza parole chiave</div>
+        </div>
+        <button class="btn-svg" onclick="exportSVG('svg-wordcloud','wordcloud')">SVG ↓</button>
+      </div>
+      <div class="chart-canvas-wrap">
+        <svg id="svg-wordcloud" class="chart-svg" height="320"></svg>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="dash-footer">
+    <div class="footer-note">FRACCHETTI MARCO — TESI DI LAUREA 2024/25</div>
+    <div class="footer-note" id="footer-updated">Dati aggiornati: —</div>
+  </div>
+
+</div><!-- /dashboard -->
+
+<script>
+// ════════════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════════════
+const PASSWORD  = 'tesi2025';          // ← cambia qui
+const API_BASE  = '';                  // ← metti URL Railway in produzione, es: 'https://survey-tesi.up.railway.app'
+const REFRESH_INTERVAL = 30000;       // 30 secondi
+
+// Palette — stessa del sondaggio
+const BLUE = [
+  'rgba(74,127,212,0.90)',
+  'rgba(74,127,212,0.65)',
+  'rgba(74,127,212,0.42)',
+  'rgba(74,127,212,0.22)',
+  'rgba(74,127,212,0.10)',
+];
+const PROFILES     = ['adolescenti','genitori','insegnanti','psicologi','studenti','lavoratori','educatori'];
+const PROFILE_COLORS = [
+  '#4a7fd4','#2d5a9e','#1a3560','#3a6abf','#5d90e0','#1e4a8a','#6ea3e8'
+];
+const PROFILE_LABELS = {
+  adolescenti:'Adolescenti', genitori:'Genitori',
+  insegnanti:'Insegnanti', psicologi:'Psicologi',
+  studenti:'Studenti', lavoratori:'Lavoratori', educatori:'Educatori'
+};
+
+// Domande (subset trasversale visualizzabile)
+const QUESTIONS_LABELS = [
+  { id:'q_social_use',  text:'Uso quotidiano dei social media' },
+  { id:'q_autostima',   text:'Influenza dei social sull\'autostima' },
+  { id:'q_benessere',   text:'Impatto sul benessere emotivo' },
+  { id:'q_educazione',  text:'Utilità dell\'educazione digitale' },
+  { id:'q_relazioni',   text:'Qualità delle relazioni online' },
+  { id:'q_tempo',       text:'Percezione del tempo trascorso online' },
+];
+
+// Stato globale
+let state = {
+  data: null,
+  activeQ: 0,
+  svgW: 0,
+};
+
+// ════════════════════════════════════════════════
+//  PASSWORD
+// ════════════════════════════════════════════════
+function checkPw() {
+  const params = new URLSearchParams(window.location.search);
+  const urlPw  = params.get('pw') || '';
+  const inputPw = document.getElementById('pw-input').value;
+  const pw = inputPw || urlPw;
+
+  if (pw === PASSWORD) {
+    document.getElementById('pw-screen').classList.add('hidden');
+    document.getElementById('dashboard').classList.add('visible');
+    initDashboard();
+  } else {
+    const inp = document.getElementById('pw-input');
+    inp.classList.add('error');
+    inp.value = '';
+    setTimeout(() => inp.classList.remove('error'), 600);
+  }
+}
+
+// Controlla URL param all'avvio
+window.addEventListener('DOMContentLoaded', () => {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('pw') === PASSWORD) checkPw();
+});
+
+// ════════════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════════════
+function initDashboard() {
+  buildQPills();
+  loadData();
+  setInterval(loadData, REFRESH_INTERVAL);
+}
+
+function buildQPills() {
+  const wrap = document.getElementById('q-pills');
+  wrap.innerHTML = QUESTIONS_LABELS.map((q,i) => `
+    <div class="q-pill ${i===0?'active':''}" data-idx="${i}" onclick="selectQ(${i})">
+      Q${i+1}
+    </div>
+  `).join('');
+  document.getElementById('q-text-display').textContent = QUESTIONS_LABELS[0].text;
+}
+
+function selectQ(idx) {
+  state.activeQ = idx;
+  document.querySelectorAll('.q-pill').forEach((p,i) => {
+    p.classList.toggle('active', i===idx);
+  });
+  document.getElementById('q-text-display').textContent = QUESTIONS_LABELS[idx].text;
+  if (state.data) renderAllCharts(state.data);
+}
+
+// ════════════════════════════════════════════════
+//  DATA LOADING
+// ════════════════════════════════════════════════
+async function loadData() {
+  try {
+    const res  = await fetch(`${API_BASE}/api/stats`);
+    const data = await res.json();
+    state.data = data;
+    updateTopbarStats(data);
+    renderAllCharts(data);
+    const now = new Date();
+    document.getElementById('footer-updated').textContent =
+      `Dati aggiornati: ${now.toLocaleTimeString('it-IT')}`;
+    document.getElementById('stat-refresh').textContent =
+      now.toLocaleTimeString('it-IT', {hour:'2-digit',minute:'2-digit'});
+  } catch(e) {
+    // Fallback dati demo se API non raggiungibile
+    state.data = generateDemoData();
+    updateTopbarStats(state.data);
+    renderAllCharts(state.data);
+    document.getElementById('footer-updated').textContent = 'Modalità demo (backend offline)';
+  }
+}
+
+function generateDemoData() {
+  const profiles = { adolescenti:42, genitori:38, insegnanti:25, psicologi:18, studenti:31, lavoratori:22, educatori:14 };
+  const ages = { '<18':42, '18-24':31, '25-34':28, '35-49':38, '50+':51 };
+  const socials = { instagram:130, tiktok:118, whatsapp:155, youtube:142, telegram:95, snapchat:72, x:58, facebook:88, reddit:41, twitch:35, linkedin:62, bereal:28 };
+  const questions = {};
+  QUESTIONS_LABELS.forEach(q => {
+    questions[q.id] = {};
+    PROFILES.forEach(p => {
+      if (!profiles[p]) return;
+      const opts = ['Molto','Abbastanza','Poco','Per niente'];
+      opts.forEach(o => {
+        const n = Math.floor(Math.random() * profiles[p] * 0.8 + 2);
+        questions[q.id][`${p}__${o}`] = n;
+      });
+    });
+  });
+  const open_answers = [
+    {text:'I social creano pressione enorme sugli adolescenti',profile:'genitori'},
+    {text:'TikTok ha cambiato completamente la soglia di attenzione',profile:'insegnanti'},
+    {text:'Opportunità ma anche rischi enormi se non guidati',profile:'psicologi'},
+    {text:'Mi confronto ogni giorno con le vite degli altri',profile:'adolescenti'},
+    {text:'Servono regole chiare e educazione digitale a scuola',profile:'educatori'},
+  ];
+  return { total: Object.values(profiles).reduce((a,b)=>a+b,0), profiles, ages, socials, questions, open_answers };
+}
+
+function updateTopbarStats(data) {
+  document.getElementById('stat-total').textContent = data.total || 0;
+  document.getElementById('stat-profiles').textContent = Object.keys(data.profiles||{}).length;
+  const last = data.open_answers?.slice(-1)[0];
+  document.getElementById('stat-last').textContent = last ? last.profile : '—';
+}
+
+// ════════════════════════════════════════════════
+//  SVG HELPERS
+// ════════════════════════════════════════════════
+function svgEl(tag, attrs={}) {
+  const el = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k,v));
+  return el;
+}
+
+function svgText(el, x, y, txt, attrs={}) {
+  const t = svgEl('text', { x, y, ...attrs });
+  t.textContent = txt;
+  el.appendChild(t);
+  return t;
+}
+
+function clearSVG(id) {
+  const svg = document.getElementById(id);
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  return svg;
+}
+
+function getW(id) {
+  return document.getElementById(id).parentElement.offsetWidth || 500;
+}
+
+// ════════════════════════════════════════════════
+//  RENDER ALL
+// ════════════════════════════════════════════════
+function renderAllCharts(data) {
+  // Estrae dati per la domanda attiva
+  const qid  = QUESTIONS_LABELS[state.activeQ].id;
+  const qRaw = data.questions?.[qid] || {};
+
+  // Aggrega: { profilo: { opzione: count } }
+  const byProfile = {};
+  const allOptions = new Set();
+  Object.entries(qRaw).forEach(([key, count]) => {
+    const [prof, opt] = key.split('__');
+    if (!byProfile[prof]) byProfile[prof] = {};
+    byProfile[prof][opt] = (byProfile[prof][opt]||0) + count;
+    allOptions.add(opt);
+  });
+  const options = [...allOptions].slice(0,5);
+  const activeProfiles = Object.keys(byProfile).filter(p => PROFILES.includes(p));
+
+  drawDonut(data, byProfile, options, activeProfiles);
+  drawScatter(data, byProfile, options, activeProfiles);
+  drawRadar(data, byProfile, options, activeProfiles);
+  drawBeeswarm(data, byProfile, options, activeProfiles);
+  drawStream(data, byProfile, options, activeProfiles);
+  drawWordCloud(data);
+}
+
+// ════════════════════════════════════════════════
+//  1. DONUT
+// ════════════════════════════════════════════════
+function drawDonut(data, byProfile, options, activeProfiles) {
+  const svg  = clearSVG('svg-donut');
+  const W    = getW('svg-donut');
+  const H    = 280;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  // Totali per opzione (somma di tutti i profili)
+  const totals = {};
+  options.forEach(o => {
+    totals[o] = activeProfiles.reduce((s,p) => s + (byProfile[p]?.[o]||0), 0);
+  });
+  const grand = Object.values(totals).reduce((a,b)=>a+b,0) || 1;
+
+  // Disegna un unico donut centrale
+  const cx = W/2, cy = H/2, R = Math.min(W,H)*0.35, r = R*0.58;
+  let startAngle = -Math.PI/2;
+
+  options.forEach((opt, i) => {
+    const frac = (totals[opt]||0) / grand;
+    const end  = startAngle + frac * 2 * Math.PI;
+    const x1 = cx + R * Math.cos(startAngle);
+    const y1 = cy + R * Math.sin(startAngle);
+    const x2 = cx + R * Math.cos(end);
+    const y2 = cy + R * Math.sin(end);
+    const x3 = cx + r * Math.cos(end);
+    const y3 = cy + r * Math.sin(end);
+    const x4 = cx + r * Math.cos(startAngle);
+    const y4 = cy + r * Math.sin(startAngle);
+    const large = frac > 0.5 ? 1 : 0;
+    const alpha = 0.9 - i * 0.18;
+    const fill  = `rgba(74,127,212,${Math.max(0.08,alpha)})`;
+
+    if (frac > 0.005) {
+      const path = svgEl('path', {
+        d: `M${x1},${y1} A${R},${R} 0 ${large},1 ${x2},${y2} L${x3},${y3} A${r},${r} 0 ${large},0 ${x4},${y4} Z`,
+        fill, stroke: '#0a0a0a', 'stroke-width': 2,
+      });
+      svg.appendChild(path);
+
+      // Label percentuale
+      const midA = startAngle + frac * Math.PI;
+      const lr   = (R+r)/2;
+      const pct  = Math.round(frac*100);
+      if (pct > 4) {
+        svgText(svg, cx + lr*Math.cos(midA), cy + lr*Math.sin(midA)+4,
+          `${pct}%`, {
+            'text-anchor':'middle', fill:'#f0e8d8',
+            'font-family':'JetBrains Mono,monospace',
+            'font-size':'11', 'font-weight':'600'
+          });
+      }
+    }
+    startAngle = end;
+  });
+
+  // Centro: totale
+  svgText(svg, cx, cy-8, grand.toString(), {
+    'text-anchor':'middle', fill:'#f0e8d8',
+    'font-family':'JetBrains Mono,monospace',
+    'font-size':'22','font-weight':'600'
+  });
+  svgText(svg, cx, cy+14, 'risposte', {
+    'text-anchor':'middle', fill:'#504538',
+    'font-family':'JetBrains Mono,monospace', 'font-size':'9'
+  });
+
+  // Legenda destra
+  const lx = cx + R + 24;
+  options.forEach((opt,i) => {
+    const ly = H/2 - (options.length*18)/2 + i*22;
+    const alpha = Math.max(0.08, 0.9 - i*0.18);
+    const circ = svgEl('circle', { cx: lx+5, cy: ly, r:5, fill:`rgba(74,127,212,${alpha})` });
+    svg.appendChild(circ);
+    svgText(svg, lx+16, ly+4, opt, {
+      fill:'#a89880','font-family':'JetBrains Mono,monospace','font-size':'10'
+    });
+    svgText(svg, lx+16, ly+15,
+      `${totals[opt]||0} (${Math.round((totals[opt]||0)/grand*100)}%)`, {
+        fill:'#504538','font-family':'JetBrains Mono,monospace','font-size':'9'
+      });
+  });
+}
+
+// ════════════════════════════════════════════════
+//  2. SCATTER
+// ════════════════════════════════════════════════
+function drawScatter(data, byProfile, options, activeProfiles) {
+  const svg = clearSVG('svg-scatter');
+  const W   = getW('svg-scatter');
+  const H   = 280;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const PAD = { t:20, r:20, b:40, l:50 };
+  const IW  = W - PAD.l - PAD.r;
+  const IH  = H - PAD.t - PAD.b;
+
+  // Griglia
+  const ages = data.ages || { '<18':20,'18-24':25,'25-34':18,'35-49':28,'50+':19 };
+  const ageBuckets = Object.keys(ages);
+  const maxAge = Math.max(...Object.values(ages)) || 1;
+
+  // Griglia H
+  [0,.25,.5,.75,1].forEach(f => {
+    const y = PAD.t + IH*(1-f);
+    const line = svgEl('line', {
+      x1:PAD.l, y1:y, x2:PAD.l+IW, y2:y,
+      stroke:'#1e2630','stroke-width':'1'
+    });
+    svg.appendChild(line);
+    if (f>0) svgText(svg, PAD.l-6, y+4, Math.round(f*maxAge).toString(), {
+      'text-anchor':'end', fill:'#504538',
+      'font-family':'JetBrains Mono,monospace','font-size':'9'
+    });
+  });
+
+  // Opzioni come asse X
+  const seed = 42;
+  let rs = seed;
+  const rand = () => { rs = (rs*1664525+1013904223)&0xffffffff; return (rs>>>0)/0xffffffff; };
+
+  options.forEach((opt, oi) => {
+    const xBase = PAD.l + (oi + 0.5) * IW / options.length;
+
+    // Scatter per profilo
+    activeProfiles.forEach((prof, pi) => {
+      const count = byProfile[prof]?.[opt] || 0;
+      const col = PROFILE_COLORS[pi % PROFILE_COLORS.length];
+      for (let i=0; i<Math.min(count,25); i++) {
+        const jx = (rand()-0.5)*IW/options.length*0.6;
+        const jy = (rand()-0.5)*IH*0.3;
+        const cx = xBase + jx;
+        const cy = PAD.t + IH - (count/maxAge)*IH*0.85 + jy;
+        const c  = svgEl('circle', {
+          cx, cy: Math.max(PAD.t+4, Math.min(PAD.t+IH-4, cy)),
+          r: 3.5,
+          fill: col, opacity: '0.65'
+        });
+        svg.appendChild(c);
+      }
+    });
+
+    // Label opzione
+    svgText(svg, xBase, H-PAD.b+16, opt.length>10?opt.slice(0,9)+'…':opt, {
+      'text-anchor':'middle', fill:'#a89880',
+      'font-family':'JetBrains Mono,monospace','font-size':'9'
+    });
+  });
+
+  // Asse Y label
+  svgText(svg, 12, PAD.t+IH/2, 'N', {
+    fill:'#504538','font-family':'JetBrains Mono,monospace','font-size':'9',
+    transform:`rotate(-90,12,${PAD.t+IH/2})`,'text-anchor':'middle'
+  });
+
+  // Legenda profili
+  const leg = document.getElementById('legend-scatter');
+  leg.innerHTML = activeProfiles.map((p,i)=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${PROFILE_COLORS[i%PROFILE_COLORS.length]}"></div>
+      ${PROFILE_LABELS[p]||p}
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════
+//  3. RADAR
+// ════════════════════════════════════════════════
+function drawRadar(data, byProfile, options, activeProfiles) {
+  const svg = clearSVG('svg-radar');
+  const W   = getW('svg-radar');
+  const H   = 300;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const cx = W*0.42, cy = H*0.5, R = Math.min(W,H)*0.36;
+  const N   = Math.max(options.length, 3);
+  const ang = (i) => (i/N)*Math.PI*2 - Math.PI/2;
+
+  // Griglia concentriche
+  [0.25,0.5,0.75,1].forEach(f => {
+    const pts = Array.from({length:N},(_,i)=>{
+      const a=ang(i); return `${cx+f*R*Math.cos(a)},${cy+f*R*Math.sin(a)}`;
+    }).join(' ');
+    svg.appendChild(svgEl('polygon',{
+      points:pts, fill:'none', stroke:'#1e2630','stroke-width':'1'
+    }));
+  });
+
+  // Assi
+  options.forEach((_,i)=>{
+    const a=ang(i);
+    svg.appendChild(svgEl('line',{
+      x1:cx,y1:cy, x2:cx+R*Math.cos(a),y2:cy+R*Math.sin(a),
+      stroke:'#1e2630','stroke-width':'1'
+    }));
+    const lx=cx+(R+18)*Math.cos(a), ly=cy+(R+18)*Math.sin(a);
+    const opt=options[i];
+    svgText(svg,lx,ly+4,opt.length>10?opt.slice(0,9)+'…':opt,{
+      'text-anchor': Math.abs(Math.cos(a))<0.1?'middle':Math.cos(a)<0?'end':'start',
+      fill:'#a89880','font-family':'JetBrains Mono,monospace','font-size':'9'
+    });
+  });
+
+  // Uno shape per profilo
+  activeProfiles.slice(0,4).forEach((prof,pi)=>{
+    const col = PROFILE_COLORS[pi%PROFILE_COLORS.length];
+    const totProf = Object.values(byProfile[prof]||{}).reduce((a,b)=>a+b,0)||1;
+    const vals = options.map(o=>(byProfile[prof]?.[o]||0)/totProf);
+    const pts = vals.map((v,i)=>{
+      const a=ang(i); return `${cx+v*R*Math.cos(a)},${cy+v*R*Math.sin(a)}`;
+    }).join(' ');
+    svg.appendChild(svgEl('polygon',{
+      points:pts, fill:`${col}18`, stroke:col,'stroke-width':'1.5'
+    }));
+    vals.forEach((v,i)=>{
+      const a=ang(i);
+      svg.appendChild(svgEl('circle',{
+        cx:cx+v*R*Math.cos(a), cy:cy+v*R*Math.sin(a),
+        r:3.5, fill:col, stroke:'#0a0a0a','stroke-width':'1.5'
+      }));
+    });
+  });
+
+  // Legenda
+  const leg=document.getElementById('legend-radar');
+  leg.innerHTML = activeProfiles.slice(0,4).map((p,i)=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${PROFILE_COLORS[i%PROFILE_COLORS.length]}"></div>
+      ${PROFILE_LABELS[p]||p}
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════
+//  4. BEESWARM
+// ════════════════════════════════════════════════
+function drawBeeswarm(data, byProfile, options, activeProfiles) {
+  const svg = clearSVG('svg-beeswarm');
+  const W   = getW('svg-beeswarm');
+  const H   = 280;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const PAD = { t:16, b:40, l:16, r:16 };
+  const IW  = W - PAD.l - PAD.r;
+  const IH  = H - PAD.t - PAD.b;
+  const DOT = 5;
+  const GAP = DOT*2.3;
+
+  let rs = 7;
+  const rand = () => { rs=(rs*1664525+1013904223)&0xffffffff; return (rs>>>0)/0xffffffff; };
+
+  options.forEach((opt, oi) => {
+    const xZone = PAD.l + oi*IW/options.length;
+    const xMid  = xZone + IW/options.length/2;
+    let placed  = [];
+
+    activeProfiles.forEach((prof, pi) => {
+      const count = Math.min(byProfile[prof]?.[opt]||0, 30);
+      const col   = PROFILE_COLORS[pi%PROFILE_COLORS.length];
+
+      for (let k=0;k<count;k++){
+        let bestX=xMid, bestY=PAD.t+IH*0.5, found=false;
+        for (let attempt=0;attempt<80;attempt++){
+          const tx=xMid+(rand()-0.5)*IW/options.length*0.7;
+          const ty=PAD.t+4+(rand()*(IH-8));
+          const ok=placed.every(([px,py])=>Math.hypot(tx-px,ty-py)>GAP);
+          if(ok){bestX=tx;bestY=ty;found=true;break;}
+        }
+        if(found){
+          placed.push([bestX,bestY]);
+          svg.appendChild(svgEl('circle',{
+            cx:bestX,cy:bestY,r:DOT,
+            fill:col,opacity:'0.75'
+          }));
+        }
+      }
+    });
+
+    // Linea separatore
+    if(oi>0){
+      svg.appendChild(svgEl('line',{
+        x1:xZone,y1:PAD.t,x2:xZone,y2:PAD.t+IH,
+        stroke:'#1e2630','stroke-width':'1','stroke-dasharray':'3,4'
+      }));
+    }
+
+    // Label
+    const label = opt.length>12?opt.slice(0,11)+'…':opt;
+    svgText(svg,xMid,H-PAD.b+16,label,{
+      'text-anchor':'middle',fill:'#a89880',
+      'font-family':'JetBrains Mono,monospace','font-size':'9'
+    });
+
+    // Totale
+    const tot=activeProfiles.reduce((s,p)=>s+(byProfile[p]?.[opt]||0),0);
+    svgText(svg,xMid,H-PAD.b+28,`n=${tot}`,{
+      'text-anchor':'middle',fill:'#504538',
+      'font-family':'JetBrains Mono,monospace','font-size':'8'
+    });
+  });
+
+  const leg=document.getElementById('legend-beeswarm');
+  leg.innerHTML=activeProfiles.map((p,i)=>`
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${PROFILE_COLORS[i%PROFILE_COLORS.length]}"></div>
+      ${PROFILE_LABELS[p]||p}
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════════════
+//  5. STREAM
+// ════════════════════════════════════════════════
+function drawStream(data, byProfile, options, activeProfiles) {
+  const svg = clearSVG('svg-stream');
+  const W   = getW('svg-stream');
+  const H   = 280;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  const PAD = {t:20,b:40,l:16,r:80};
+  const IW  = W-PAD.l-PAD.r;
+  const IH  = H-PAD.t-PAD.b;
+
+  const N   = activeProfiles.length;
+  if(!N) return;
+  const xs  = activeProfiles.map((_,i)=>PAD.l+i*(IW/(N-1||1)));
+
+  // Per ogni profilo: pct per opzione
+  const pcts = activeProfiles.map(prof=>{
+    const tot=Object.values(byProfile[prof]||{}).reduce((a,b)=>a+b,0)||1;
+    return options.map(o=>(byProfile[prof]?.[o]||0)/tot*100);
+  });
+
+  // Disegna band per ogni opzione
+  options.forEach((opt,oi)=>{
+    const alpha=Math.max(0.08,0.85-oi*0.18);
+    const col=`rgba(74,127,212,${alpha})`;
+
+    // Calcola top/bottom di ogni colonna
+    const bottoms=pcts.map(p=>p.slice(0,oi).reduce((a,b)=>a+b,0));
+    const tops=pcts.map((p,i)=>bottoms[i]+p[oi]);
+
+    if(N===1){
+      // Single bar
+      const y1=PAD.t+bottoms[0]/100*IH;
+      const y2=PAD.t+tops[0]/100*IH;
+      svg.appendChild(svgEl('rect',{
+        x:PAD.l,y:y1,width:IW*0.4,height:y2-y1,
+        fill:col,stroke:'#0a0a0a','stroke-width':'1'
+      }));
+    } else {
+      // Path spline approssimato (lineare)
+      const topPts=xs.map((x,i)=>`${x},${PAD.t+tops[i]/100*IH}`);
+      const botPts=[...xs.map((x,i)=>`${x},${PAD.t+bottoms[i]/100*IH}`)].reverse();
+      svg.appendChild(svgEl('polygon',{
+        points:[...topPts,...botPts].join(' '),
+        fill:col, stroke:'#0a0a0a','stroke-width':'1.5'
+      }));
+    }
+
+    // Label destra
+    const lastTop=PAD.t+tops[N-1]/100*IH;
+    const lastBot=PAD.t+bottoms[N-1]/100*IH;
+    const midY=(lastTop+lastBot)/2;
+    svgText(svg,W-PAD.r+6,midY+4,opt.length>10?opt.slice(0,9)+'…':opt,{
+      fill:'#a89880','font-family':'JetBrains Mono,monospace','font-size':'9'
+    });
+  });
+
+  // Label profili asse X
+  activeProfiles.forEach((prof,i)=>{
+    svg.appendChild(svgEl('line',{
+      x1:xs[i],y1:PAD.t,x2:xs[i],y2:PAD.t+IH,
+      stroke:'#1e2630','stroke-width':'1'
+    }));
+    svgText(svg,xs[i],H-PAD.b+16,
+      (PROFILE_LABELS[prof]||prof).slice(0,10),{
+        'text-anchor':'middle',fill:'#a89880',
+        'font-family':'JetBrains Mono,monospace','font-size':'9'
+      });
+  });
+
+  // Asse Y %
+  [0,25,50,75,100].forEach(f=>{
+    const y=PAD.t+f/100*IH;
+    svgText(svg,PAD.l-4,y+3,`${100-f}%`,{
+      'text-anchor':'end',fill:'#504538',
+      'font-family':'JetBrains Mono,monospace','font-size':'8'
+    });
+  });
+
+  const leg=document.getElementById('legend-stream');
+  leg.innerHTML=options.map((o,i)=>{
+    const alpha=Math.max(0.08,0.85-i*0.18);
+    return `<div class="legend-item">
+      <div class="legend-dot" style="background:rgba(74,127,212,${alpha})"></div>
+      ${o}
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════════
+//  6. WORD CLOUD
+// ════════════════════════════════════════════════
+function drawWordCloud(data) {
+  const svg = clearSVG('svg-wordcloud');
+  const W   = getW('svg-wordcloud');
+  const H   = 320;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+
+  // Estrai parole dalle risposte aperte
+  const stopwords = new Set(['i','il','la','le','lo','gli','un','una','e','è','di','da','in','su','per','con','che','non','si','a','al','del','dei','della','delle','degli','ma','o','ho','ha','hanno','sono','questo','questa','questi','queste','anche','più','come','se','mi','ci','ne','tra','fra','loro','sua','suo','mia','mio']);
+  const freq = {};
+
+  (data.open_answers||[]).forEach(({text})=>{
+    if (!text) return;
+    text.toLowerCase().replace(/[^a-zàèéìòù\s]/g,'').split(/\s+/).forEach(w=>{
+      if(w.length>3 && !stopwords.has(w)) freq[w]=(freq[w]||0)+1;
+    });
+  });
+
+  // Aggiungi keyword tematiche di default se poche risposte
+  const defaults = {social:8,adolescenti:7,smartphone:6,tempo:5,instagram:6,tiktok:5,identità:4,autostima:5,confronto:4,algoritmo:3,dipendenza:4,educazione:3,famiglia:3,scuola:3,rischi:3,opportunità:2,benessere:3};
+  Object.entries(defaults).forEach(([w,n])=>{ freq[w]=(freq[w]||0)+n; });
+
+  const words = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,40);
+  const maxF  = words[0]?.[1]||1;
+
+  const placed = [];
+  let rs=99;
+  const rand=()=>{rs=(rs*1664525+1013904223)&0xffffffff;return(rs>>>0)/0xffffffff;};
+
+  words.forEach(([word,count])=>{
+    const size = 11 + (count/maxF)*38;
+    const alpha = 0.25 + (count/maxF)*0.75;
+    const fill  = `rgba(74,127,212,${alpha.toFixed(2)})`;
+    const weight= size>26?'600':'400';
+
+    for(let attempt=0;attempt<200;attempt++){
+      const x = size*0.5 + rand()*(W-size);
+      const y = size*0.5 + rand()*(H-size*0.5);
+      const charW = size*0.62*word.length;
+      const charH = size*1.1;
+      const ok=placed.every(([px,py,pw,ph])=>
+        !(x<px+pw/2+charW/2+4 && x>px-pw/2-charW/2-4 &&
+          y<py+ph/2+charH/2+4 && y>py-ph/2-charH/2-4));
+      if(ok){
+        placed.push([x,y,charW,charH]);
+        svgText(svg,x,y,word,{
+          'text-anchor':'middle','dominant-baseline':'middle',
+          fill, 'font-family':'DM Sans,system-ui,sans-serif',
+          'font-size':size.toFixed(1),'font-weight':weight
+        });
+        break;
+      }
+    }
+  });
+
+  // Nota
+  svgText(svg,W-8,H-8,`${(data.open_answers||[]).length} risposte aperte analizzate`,{
+    'text-anchor':'end',fill:'#504538',
+    'font-family':'JetBrains Mono,monospace','font-size':'9'
+  });
+}
+
+// ════════════════════════════════════════════════
+//  EXPORT SVG
+// ════════════════════════════════════════════════
+function exportSVG(svgId, name) {
+  const svg  = document.getElementById(svgId);
+  const blob = new Blob([
+    `<?xml version="1.0" encoding="UTF-8"?>\n`,
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${svg.getAttribute('viewBox')}" `,
+    `style="background:#0a0a0a">`,
+    svg.innerHTML,
+    `</svg>`
+  ], {type:'image/svg+xml'});
+  const a  = document.createElement('a');
+  a.href   = URL.createObjectURL(blob);
+  a.download=`fracchetti_${name}_Q${state.activeQ+1}.svg`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportAllSVG() {
+  ['donut','scatter','radar','beeswarm','stream','wordcloud'].forEach((n,i)=>{
+    setTimeout(()=>exportSVG(`svg-${n}`,n),i*200);
+  });
+}
+</script>
+</body>
+</html>

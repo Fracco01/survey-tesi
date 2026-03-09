@@ -1,0 +1,1310 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Social & Adolescenti — Ricerca Tesi</title>
+
+<!-- ════════════════════════════════════════════
+     DESIGN TOKENS — modifica qui colori e font
+     senza toccare altro codice
+     ════════════════════════════════════════════ -->
+<style>
+:root {
+  /* COLORI */
+  --color-bg:           #0a0a0a;        /* Sfondo principale nero */
+  --color-surface:      #111111;        /* Card / pannelli */
+  --color-surface-2:    #181818;        /* Layer secondario */
+  --color-border:       #222222;        /* Bordi sottili */
+
+  --color-blue-hi:      #4a7fd4;        /* Blu pieno — accento principale */
+  --color-blue-mid:     #2d5a9e;        /* Blu medio saturazione */
+  --color-blue-low:     #1e3d6e;        /* Blu bassa saturazione — profili */
+  --color-blue-dim:     #152a4a;        /* Blu molto basso — hover/selezione */
+  --color-blue-ghost:   #0d1e35;        /* Blu quasi nero — sfondi card selezionata */
+
+  --color-cream:        #f0e8d8;        /* Crema — testo primario */
+  --color-cream-mid:    #b8a898;        /* Crema medio — testo secondario */
+  --color-cream-dim:    #6a5f52;        /* Crema scuro — testo dimmed */
+
+  --color-success:      #2d7a5a;        /* Verde conferma */
+  --color-error:        #8a2d2d;        /* Rosso errore */
+
+  /* TIPOGRAFIA */
+  --font-display:       'DM Serif Display', Georgia, serif;    /* Titoli grandi */
+  --font-body:          'DM Sans', system-ui, sans-serif;      /* Testo corpo */
+  --font-mono:          'JetBrains Mono', 'Courier New', monospace; /* Label / codice */
+
+  /* SPAZIATURE */
+  --space-xs:   4px;
+  --space-sm:   8px;
+  --space-md:   16px;
+  --space-lg:   24px;
+  --space-xl:   40px;
+  --space-2xl:  64px;
+
+  /* BORDI */
+  --radius-sm:  2px;
+  --radius-md:  6px;
+  --radius-lg:  12px;
+
+  /* TRANSIZIONI */
+  --transition: 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── RESET & BASE ──────────────────────────── */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--color-bg);
+  color: var(--color-cream);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+
+/* ─── GRID BACKGROUND ───────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(74,127,212,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74,127,212,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ─── PAGES ─────────────────────────────────── */
+.page {
+  display: none;
+  min-height: 100vh;
+  position: relative;
+  z-index: 1;
+  animation: fadeIn 0.4s ease;
+}
+.page.active { display: flex; flex-direction: column; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── TOPBAR ────────────────────────────────── */
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-xl);
+  border-bottom: 1px solid var(--color-border);
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  gap: var(--space-md);
+}
+
+.topbar-brand {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-blue-hi);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.progress-wrap {
+  flex: 1;
+  max-width: 480px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.progress-track {
+  flex: 1;
+  height: 2px;
+  background: var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-blue-low), var(--color-blue-hi));
+  border-radius: 2px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 0 0 10px rgba(74,127,212,0.5);
+  width: 0%;
+}
+
+.progress-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-cream-dim);
+  white-space: nowrap;
+  min-width: 48px;
+  text-align: right;
+}
+
+.topbar-profile {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-cream-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* ─── PAGE CONTENT ──────────────────────────── */
+.page-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: var(--space-2xl) var(--space-xl);
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ─── STEP TAG ──────────────────────────────── */
+.step-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-blue-hi);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.step-tag::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 1px;
+  background: var(--color-blue-hi);
+}
+
+/* ─── HEADINGS ──────────────────────────────── */
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 5.5vw, 72px);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  margin-bottom: var(--space-lg);
+  color: var(--color-cream);
+}
+
+h1 em {
+  font-style: italic;
+  color: var(--color-blue-hi);
+}
+
+.question-text {
+  font-family: var(--font-display);
+  font-size: clamp(22px, 3vw, 36px);
+  font-weight: 400;
+  line-height: 1.3;
+  margin-bottom: var(--space-xl);
+  color: var(--color-cream);
+  max-width: 700px;
+}
+
+.body-text {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--color-cream-mid);
+  max-width: 560px;
+  margin-bottom: var(--space-xl);
+}
+
+/* ─── PROFILE GRID (desktop: 3 col, mobile: 2 col) */
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+  width: 100%;
+  margin-bottom: var(--space-xl);
+}
+
+.profile-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-xl) var(--space-lg);
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  user-select: none;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--color-blue-hi);
+  transform: scaleX(0);
+  transition: transform var(--transition);
+}
+
+.profile-card:hover {
+  border-color: var(--color-blue-low);
+  background: var(--color-blue-ghost);
+  transform: translateY(-2px);
+}
+
+.profile-card:hover::after { transform: scaleX(1); }
+
+.profile-card.selected {
+  border-color: var(--color-blue-hi);
+  background: var(--color-blue-ghost);
+  box-shadow: 0 0 0 1px var(--color-blue-low) inset;
+}
+.profile-card.selected::after { transform: scaleX(1); }
+
+.profile-index {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-blue-mid);
+  letter-spacing: 0.1em;
+  margin-bottom: var(--space-xs);
+}
+
+.profile-card.selected .profile-index { color: var(--color-blue-hi); }
+
+.profile-name {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-cream);
+  letter-spacing: 0.01em;
+}
+
+.profile-desc {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--color-cream-dim);
+  line-height: 1.5;
+}
+
+.profile-card.selected .profile-name { color: var(--color-blue-hi); }
+
+/* ─── DEMOGRAPHICS ──────────────────────────── */
+.demo-group {
+  width: 100%;
+  margin-bottom: var(--space-xl);
+}
+
+.demo-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-blue-hi);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-md);
+}
+
+.age-input {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-cream);
+  font-family: var(--font-mono);
+  font-size: 28px;
+  font-weight: 600;
+  padding: var(--space-lg) var(--space-xl);
+  width: 180px;
+  text-align: center;
+  outline: none;
+  transition: border-color var(--transition);
+  -moz-appearance: textfield;
+}
+.age-input::-webkit-inner-spin-button,
+.age-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.age-input:focus {
+  border-color: var(--color-blue-hi);
+  box-shadow: 0 0 0 3px rgba(74,127,212,0.15);
+}
+
+/* Social grid (desktop: 4 col, mobile: 2 col) */
+.social-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm);
+  width: 100%;
+}
+
+.social-chip {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-md);
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  user-select: none;
+}
+
+.social-chip:hover {
+  border-color: var(--color-blue-low);
+  background: var(--color-blue-ghost);
+}
+
+.social-chip.selected {
+  border-color: var(--color-blue-hi);
+  background: var(--color-blue-ghost);
+  color: var(--color-blue-hi);
+}
+
+.social-chip .chip-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-cream-mid);
+}
+.social-chip.selected .chip-name { color: var(--color-blue-hi); }
+
+/* ─── ANSWER OPTIONS — CERCHI ───────────────── */
+/* Desktop: riga orizzontale | Mobile: 2 colonne */
+.options-list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: var(--space-lg);
+  width: 100%;
+  margin-bottom: var(--space-xl);
+  align-items: flex-start;
+}
+
+/* Ogni opzione è centrata su un cerchio */
+.option-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+  user-select: none;
+  flex: 1;
+  min-width: 100px;
+  max-width: 180px;
+  background: none;
+  border: none;
+  padding: var(--space-sm) 0;
+  transition: transform var(--transition);
+}
+
+.option-card:hover { transform: translateY(-3px); }
+
+/* Il cerchio: cambia intensità del blu in base all'indice */
+.option-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition);
+  position: relative;
+  border: 1.5px solid transparent;
+}
+
+/* Intensità decrescente: prima opzione = piena, ultima = quasi vuota */
+.option-card[data-idx="0"] .option-circle { background: rgba(74,127,212, 0.80); border-color: rgba(74,127,212,0.6); }
+.option-card[data-idx="1"] .option-circle { background: rgba(74,127,212, 0.52); border-color: rgba(74,127,212,0.4); }
+.option-card[data-idx="2"] .option-circle { background: rgba(74,127,212, 0.28); border-color: rgba(74,127,212,0.3); }
+.option-card[data-idx="3"] .option-circle { background: rgba(74,127,212, 0.12); border-color: rgba(74,127,212,0.25); }
+.option-card[data-idx="4"] .option-circle { background: rgba(74,127,212, 0.05); border-color: rgba(74,127,212,0.2); }
+
+/* Lettera dentro il cerchio */
+.option-letter {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-cream);
+}
+
+/* Testo sotto il cerchio */
+.option-text {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-cream-mid);
+  line-height: 1.3;
+  text-align: center;
+  max-width: 110px;
+}
+
+/* Stato selezionato: cerchio pieno + alone + testo crema */
+.option-card.selected .option-circle {
+  background: rgba(74,127,212, 1) !important;
+  border-color: rgba(74,127,212, 1) !important;
+  box-shadow: 0 0 0 6px rgba(74,127,212,0.15), 0 0 24px rgba(74,127,212,0.35);
+  transform: scale(1.08);
+}
+.option-card.selected .option-text { color: var(--color-cream); }
+.option-card.selected .option-letter { color: #fff; }
+
+/* ─── OPEN QUESTION TEXTAREA ────────────────── */
+.open-textarea {
+  width: 100%;
+  min-height: 180px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-cream);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.7;
+  padding: var(--space-lg);
+  resize: vertical;
+  outline: none;
+  transition: border-color var(--transition);
+  margin-bottom: var(--space-xl);
+}
+.open-textarea:focus {
+  border-color: var(--color-blue-hi);
+  box-shadow: 0 0 0 3px rgba(74,127,212,0.1);
+}
+.open-textarea::placeholder { color: var(--color-cream-dim); }
+
+.char-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-cream-dim);
+  margin-top: -var(--space-lg);
+  margin-bottom: var(--space-xl);
+  text-align: right;
+}
+
+/* ─── BUTTONS ───────────────────────────────── */
+.btn-row {
+  display: flex;
+  gap: var(--space-md);
+  align-items: center;
+}
+
+.btn {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--space-md) var(--space-xl);
+  cursor: pointer;
+  transition: all var(--transition);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--color-blue-mid);
+  color: var(--color-cream);
+  border: 1px solid var(--color-blue-low);
+}
+.btn-primary:hover {
+  background: var(--color-blue-hi);
+  box-shadow: 0 0 20px rgba(74,127,212,0.3);
+  transform: translateY(-1px);
+}
+.btn-primary:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-cream-dim);
+  border: 1px solid var(--color-border);
+}
+.btn-ghost:hover {
+  color: var(--color-cream);
+  border-color: var(--color-cream-dim);
+}
+
+/* ─── LANDING PAGE ──────────────────────────── */
+.landing-hero {
+  padding: var(--space-2xl) var(--space-xl);
+  max-width: 900px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.landing-eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-blue-hi);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-xl);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.landing-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 32px;
+  height: 1px;
+  background: var(--color-blue-hi);
+}
+
+.landing-title {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 84px);
+  font-weight: 400;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-xl);
+  color: var(--color-cream);
+}
+.landing-title em {
+  font-style: italic;
+  color: var(--color-blue-hi);
+}
+
+.landing-meta {
+  display: flex;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-2xl);
+  flex-wrap: wrap;
+}
+
+.meta-item {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-cream-dim);
+  letter-spacing: 0.05em;
+}
+.meta-item strong {
+  display: block;
+  color: var(--color-cream-mid);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.landing-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--space-xl) 0;
+}
+
+.select-profile-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--color-blue-hi);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.select-profile-label::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 1px;
+  background: var(--color-blue-hi);
+}
+
+/* ─── THANK YOU PAGE ────────────────────────── */
+.thankyou-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-2xl) var(--space-xl);
+}
+
+.thankyou-icon {
+  margin-bottom: var(--space-xl);
+}
+
+.thankyou-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(74,127,212,0.85);
+  box-shadow: 0 0 0 12px rgba(74,127,212,0.12), 0 0 48px rgba(74,127,212,0.3);
+  margin: 0 auto;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+
+.thankyou-title {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4vw, 56px);
+  margin-bottom: var(--space-lg);
+}
+
+.thankyou-text {
+  font-size: 15px;
+  color: var(--color-cream-mid);
+  max-width: 480px;
+  margin-bottom: var(--space-2xl);
+  line-height: 1.7;
+}
+
+/* ─── MOBILE RESPONSIVE ─────────────────────── */
+@media (max-width: 768px) {
+  .topbar {
+    padding: var(--space-md);
+    gap: var(--space-sm);
+  }
+  .topbar-brand { font-size: 9px; }
+  .topbar-profile { display: none; }
+
+  .landing-hero,
+  .page-content {
+    padding: var(--space-xl) var(--space-lg);
+  }
+
+  /* PROFILI: 2 colonne su mobile */
+  .profile-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+  }
+  /* L'ultima card va a piena larghezza se dispari */
+  .profile-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+
+  /* SOCIAL: 2 colonne su mobile */
+  .social-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* OPZIONI: 2 colonne su mobile, cerchi più piccoli */
+  .options-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-md);
+    justify-items: center;
+  }
+  .option-card {
+    min-width: unset;
+    max-width: 140px;
+  }
+  .option-circle {
+    width: 64px;
+    height: 64px;
+  }
+
+  .btn-row { flex-wrap: wrap; }
+  .btn { width: 100%; justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .profile-grid { grid-template-columns: 1fr 1fr; }
+  .social-grid  { grid-template-columns: 1fr 1fr; }
+  .options-list { grid-template-columns: 1fr; }
+}
+</style>
+
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 1 — LANDING + SELEZIONE PROFILO
+     ═══════════════════════════════════════════ -->
+<div class="page active" id="page-1">
+  <div class="landing-hero">
+
+    <div class="landing-eyebrow">Ricerca accademica — Tesi di laurea</div>
+
+    <h1 class="landing-title">
+      Come i <em>social media</em><br>
+      influenzano la crescita<br>
+      degli adolescenti?
+    </h1>
+
+    <div class="landing-meta">
+      <div class="meta-item">
+        <strong>Ricercatore</strong>
+        Marco Fracchetti
+      </div>
+      <div class="meta-item">
+        <strong>Anno</strong>
+        2024 / 2025
+      </div>
+      <div class="meta-item">
+        <strong>Durata</strong>
+        circa 5 minuti
+      </div>
+      <div class="meta-item">
+        <strong>Anonimato</strong>
+        Indagine completamente anonima
+      </div>
+    </div>
+
+    <p class="body-text">
+      Questa ricerca esplora il rapporto tra social media e sviluppo adolescenziale
+      attraverso prospettive diverse. I dati raccolti saranno utilizzati
+      esclusivamente per scopi accademici.
+    </p>
+
+    <div class="landing-divider"></div>
+
+    <div class="select-profile-label">Chi sei?</div>
+
+    <div class="profile-grid">
+      <div class="profile-card" data-profile="adolescenti" onclick="selectProfile(this)">
+        <div class="profile-index">01</div>
+        <div class="profile-name">Adolescente</div>
+        <div class="profile-desc">Hai tra i 13 e i 19 anni</div>
+      </div>
+      <div class="profile-card" data-profile="studenti" onclick="selectProfile(this)">
+        <div class="profile-index">02</div>
+        <div class="profile-name">Studente</div>
+        <div class="profile-desc">Università o scuola superiore</div>
+      </div>
+      <div class="profile-card" data-profile="lavoratori" onclick="selectProfile(this)">
+        <div class="profile-index">03</div>
+        <div class="profile-name">Lavoratore</div>
+        <div class="profile-desc">Adulto nel mondo del lavoro</div>
+      </div>
+      <div class="profile-card" data-profile="genitori" onclick="selectProfile(this)">
+        <div class="profile-index">04</div>
+        <div class="profile-name">Genitore</div>
+        <div class="profile-desc">Con figli adolescenti (14–16 anni)</div>
+      </div>
+      <div class="profile-card" data-profile="educatori" onclick="selectProfile(this)">
+        <div class="profile-index">05</div>
+        <div class="profile-name">Educatore</div>
+        <div class="profile-desc">Operatore educativo o sociale</div>
+      </div>
+      <div class="profile-card" data-profile="insegnanti" onclick="selectProfile(this)">
+        <div class="profile-index">06</div>
+        <div class="profile-name">Insegnante</div>
+        <div class="profile-desc">Docente nella scuola secondaria</div>
+      </div>
+      <div class="profile-card" data-profile="psicologi" onclick="selectProfile(this)">
+        <div class="profile-index">07</div>
+        <div class="profile-name">Psicologo</div>
+        <div class="profile-desc">Professionista della salute mentale</div>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="btn-start" disabled onclick="goToPage(2)">
+        Inizia il questionario →
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TOPBAR (shared, hidden on page 1)
+     ═══════════════════════════════════════════ -->
+<div id="topbar" class="topbar" style="display:none; position:fixed; top:0; left:0; right:0;">
+  <div class="topbar-brand">Social & Adolescenti</div>
+  <div class="progress-wrap">
+    <div class="progress-track">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+    <div class="progress-label" id="progress-label">0 / 17</div>
+  </div>
+  <div class="topbar-profile" id="topbar-profile"></div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 2 — DATI DEMOGRAFICI
+     ═══════════════════════════════════════════ -->
+<div class="page" id="page-2" style="padding-top: 64px;">
+  <div class="page-content">
+
+    <div class="step-tag">Sezione 01 — Dati generali</div>
+    <h2 class="question-text">Raccontaci qualcosa di te.</h2>
+
+    <div class="demo-group">
+      <div class="demo-label">Quanti anni hai?</div>
+      <input type="number" class="age-input" id="age-input"
+             min="10" max="99" placeholder="—"
+             oninput="checkDemoComplete()">
+    </div>
+
+    <div class="demo-group">
+      <div class="demo-label">Quali social media usi? (puoi scegliere più opzioni)</div>
+      <div class="social-grid" id="social-grid">
+        <!-- Generato via JS -->
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goToPage(1)">← Indietro</button>
+      <button class="btn btn-primary" id="btn-demo-next" disabled onclick="goToPage(3)">
+        Continua →
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGES 3–17 — DOMANDE A SCELTA MULTIPLA
+     ═══════════════════════════════════════════ -->
+<div id="questions-container">
+  <!-- Generato dinamicamente via JS -->
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 18 — DOMANDA APERTA
+     ═══════════════════════════════════════════ -->
+<div class="page" id="page-18" style="padding-top: 64px;">
+  <div class="page-content">
+
+    <div class="step-tag">Ultima domanda — Risposta aperta</div>
+    <h2 class="question-text">
+      C'è qualcosa che vorresti aggiungere sul rapporto tra social media e crescita degli adolescenti?
+    </h2>
+    <p class="body-text">
+      Scrivi liberamente ciò che pensi. Non ci sono risposte giuste o sbagliate.
+    </p>
+
+    <textarea class="open-textarea" id="open-answer"
+              placeholder="Scrivi qui la tua risposta…"
+              maxlength="1000"
+              oninput="updateCharCount()"></textarea>
+    <div class="char-count" id="char-count">0 / 1000</div>
+
+    <div class="btn-row">
+      <button class="btn btn-ghost" onclick="goToPage(17)">← Indietro</button>
+      <button class="btn btn-primary" onclick="submitSurvey()">
+        Invia il questionario ✓
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE THANK YOU
+     ═══════════════════════════════════════════ -->
+<div class="page" id="page-thanks">
+  <div class="thankyou-wrap">
+    <div class="thankyou-icon">
+      <div class="thankyou-circle"></div>
+    </div>
+    <h1 class="thankyou-title">Grazie per il<br><em>tuo contributo.</em></h1>
+    <p class="thankyou-text">
+      Le tue risposte sono state registrate in modo anonimo
+      e contribuiranno alla ricerca sul rapporto tra
+      social media e crescita adolescenziale.
+    </p>
+    <div style="font-family: var(--font-mono); font-size: 11px; color: var(--color-cream-dim); letter-spacing: 0.1em;">
+      FRACCHETTI MARCO — TESI DI LAUREA 2024/25
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════
+     JAVASCRIPT — Logica completa
+     ════════════════════════════════════════════ -->
+<script>
+
+// ─── DOMANDE PER PROFILO ──────────────────────
+const QUESTIONS = {
+  adolescenti: [
+    { id:'a1', text:'Ti capita di sentirti sotto pressione per apparire in un certo modo?', options:['Spesso','A volte','Raramente','Mai'] },
+    { id:'a2', text:'I social influenzano le tue scelte (moda, gusti, idee)?', options:['Molto','Abbastanza','Poco','Per niente'] },
+    { id:'a3', text:'Ritieni di usare i social in modo consapevole?', options:['Sì','In parte','No'] },
+    { id:'a4', text:'Ti informi tramite i social e verifichi le fonti?', options:['Sempre','A volte','Raramente','Mai'] },
+    { id:'a5', text:'I social influenzano la tua autostima?', options:['Sì','No','Non so'] },
+    { id:'a6', text:'Pensi di passare troppo tempo online?', options:['Sì','No','Non so'] },
+    { id:'a7', text:'I social contribuiscono a definire la tua identità?', options:['Molto','In parte','Poco','Per niente'] },
+    { id:'a8', text:'Ritieni che i social favoriscano relazioni autentiche?', options:['Sì','No','Dipende'] },
+    { id:'a9', text:'I social amplificano le insicurezze adolescenziali?', options:['Molto','Abbastanza','Poco','Per niente'] },
+    { id:'a10', text:"Pensi che l'algoritmo influenzi ciò che pensi?", options:['Sì','In parte','No','Non lo so'] },
+    { id:'a11', text:'I social riducono la capacità di attenzione?', options:['Sì','No','Dipende'] },
+    { id:'a12', text:'È possibile educare a un uso sano dei social?', options:['Sì','No','Solo in parte'] },
+    { id:'a13', text:'I social sostituiscono esperienze reali?', options:['Sì','No','Dipende'] },
+    { id:'a14', text:'I social creano più opportunità o più problemi?', options:['Opportunità','Problemi','Entrambi'] },
+    { id:'a15', text:'Immagini un futuro senza social?', options:['Sì','No','Sì, con grandi cambiamenti'] },
+  ],
+  genitori: [
+    { id:'g1', text:'Qual è il tuo rapporto con i social media?', options:['Li uso quotidianamente','Li uso saltuariamente','Non li uso'] },
+    { id:'g2', text:'Quanto tempo trascorre mediamente suo/a figlio/a sui social in un giorno?', options:['Meno di 1 ora','1–2 ore','2–4 ore','Più di 4 ore','Non so'] },
+    { id:'g3', text:'A che età ha iniziato a usare i social media?', options:['Prima degli 11 anni','11–12 anni','13–14 anni','15 anni o più','Non ricordo'] },
+    { id:'g4', text:'Come percepisce il rapporto di suo/a figlio/a con la pubblicazione di contenuti?', options:['Serio e consapevole','Un po\' impulsivo','Indifferente','Non so'] },
+    { id:'g5', text:'Ha notato che suo/a figlio/a si confronta con gli altri sui social?', options:['Spesso','Qualche volta','Raramente','Mai','Non so'] },
+    { id:'g6', text:'Sa se il profilo di suo/a figlio/a è impostato come:', options:['Pubblico','Privato','Non lo so'] },
+    { id:'g7', text:'Sa se suo/a figlio/a parla online con persone sconosciute?', options:['Sì','No','Non so'] },
+    { id:'g8', text:'Ritiene che suo/a figlio/a sappia come segnalare o bloccare utenti molesti?', options:['Sì','No','Non sono sicuro/a'] },
+    { id:'g9', text:'Ha mai saputo di episodi che hanno messo a disagio suo/a figlio/a sui social?', options:['Sì','No','Preferisco non rispondere'] },
+    { id:'g10', text:"Dopo l'uso dei social, come le sembra che suo/a figlio/a si senta?", options:['Bene / rilassato','Neutro','Stressato / agitato','Dipende dal giorno','Non so'] },
+    { id:'g11', text:'Le sembra che perda la percezione del tempo mentre è sui social?', options:['Spesso','Qualche volta','Raramente','Mai','Non so'] },
+    { id:'g12', text:'Ha mai proposto o incoraggiato una pausa dai social?', options:['Sì, e ha funzionato','Sì, ma non ha cambiato molto','No, ma vorrei farlo','No, non lo ritengo necessario'] },
+    { id:'g13', text:'Ritiene che i social abbiano un impatto sulla salute mentale degli adolescenti?', options:['Molto negativo','Abbastanza negativo','Neutro','Positivo','Non so'] },
+    { id:'g14', text:"Monitora l'attività online di suo/a figlio/a?", options:['Sì, regolarmente','Qualche volta','Raramente','No, rispetto la privacy'] },
+    { id:'g15', text:"Ritiene necessaria un'educazione digitale formale a scuola?", options:['Sì, assolutamente','Sì, in parte','Non necessariamente','No'] },
+  ],
+  insegnanti: [
+    { id:'i1', text:'Anni di esperienza nella scuola secondaria:', options:['0–5','6–10','11–20','Oltre 20'] },
+    { id:'i2', text:'Quanto ritiene che i suoi studenti utilizzino i social media quotidianamente?', options:['Poco','Moderatamente','Molto','Non so'] },
+    { id:'i3', text:"In che misura l'uso dei social influisce sull'attenzione o sul rendimento scolastico?", options:['Molto','Abbastanza','Poco','Per niente','Non so'] },
+    { id:'i4', text:'Ha notato episodi legati ai social che influenzano la vita scolastica?', options:['Sì, frequentemente','Sì, occasionalmente','Raramente','Mai'] },
+    { id:'i5', text:'Gli studenti parlano apertamente del loro uso dei social?', options:['Sì, spesso','Qualche volta','Raramente','Mai'] },
+    { id:'i6', text:'Ha notato cambiamenti emotivi o comportamentali legati ai social?', options:['Sì','No','Non so'] },
+    { id:'i7', text:'Ritiene che gli studenti abbiano competenze adeguate per un uso sicuro dei social?', options:['Sì','Parzialmente','No','Non so'] },
+    { id:'i8', text:'Gli studenti sanno come segnalare o bloccare contenuti o utenti problematici?', options:['Sì','Parzialmente','No','Non so'] },
+    { id:'i9', text:'Ha mai gestito situazioni problematiche legate ai social?', options:['Sì, più volte','Sì, una volta','No'] },
+    { id:'i10', text:"Come percepisce l'impatto dei social sul benessere emotivo degli studenti?", options:['Positivo','Neutro','Negativo','Variabile','Non so'] },
+    { id:'i11', text:'Gli studenti mostrano difficoltà a limitare il tempo sui social?', options:['Sì, spesso','Qualche volta','Raramente','Mai','Non so'] },
+    { id:'i12', text:"Ha mai proposto attività sull'uso consapevole dei social?", options:['Sì, regolarmente','Sì, occasionalmente','No, ma vorrei farlo','No'] },
+    { id:'i13', text:'I social influenzano le dinamiche relazionali in classe?', options:['Molto','Abbastanza','Poco','Per niente'] },
+    { id:'i14', text:'Ritiene che i social possano essere utilizzati come strumento didattico?', options:['Sì, con supervisione','Sì, liberamente','No','Non so'] },
+    { id:'i15', text:"Ritiene utile introdurre un'ora settimanale di educazione digitale?", options:['Sì, assolutamente','Sì, in parte','Non prioritario','No'] },
+  ],
+  psicologi: [
+    { id:'p1', text:'Anni di esperienza con adolescenti:', options:['0–5','6–10','11–20','Oltre 20'] },
+    { id:'p2', text:'Quanto ritiene che gli adolescenti che segue utilizzino i social media quotidianamente?', options:['Poco','Moderatamente','Molto','Variabile','Non so'] },
+    { id:'p3', text:"In che misura l'uso dei social influisce sul funzionamento quotidiano degli adolescenti?", options:['Molto','Abbastanza','Poco','Per niente','Variabile'] },
+    { id:'p4', text:"Ha riscontrato nei ragazzi effetti emotivi legati all'uso dei social?", options:['Frequenti','Occasionali','Rari','Mai'] },
+    { id:'p5', text:'Ha osservato comportamenti problematici correlati ai social?', options:['Sì, frequentemente','Sì, occasionalmente','Raramente','No'] },
+    { id:'p6', text:'In che misura i social influenzano la percezione di sé negli adolescenti?', options:['Molto','Abbastanza','Poco','Per niente','Variabile'] },
+    { id:'p7', text:'Gli adolescenti mostrano consapevolezza dei rischi online?', options:['Sì','Parzialmente','No','Variabile'] },
+    { id:'p8', text:'Sanno come proteggersi (privacy, blocco utenti, segnalazioni)?', options:['Sì','Parzialmente','No','Variabile'] },
+    { id:'p9', text:'Ha mai affrontato in seduta situazioni problematiche legate ai social?', options:['Sì, spesso','Qualche volta','Raramente','No'] },
+    { id:'p10', text:"Come valuta l'impatto complessivo dei social sul benessere degli adolescenti?", options:['Positivo','Neutro','Negativo','Ambivalente','Variabile'] },
+    { id:'p11', text:'Gli adolescenti mostrano difficoltà a limitare il tempo sui social?', options:['Sì, spesso','Qualche volta','Raramente','Mai'] },
+    { id:'p12', text:'Ritiene utile proporre percorsi di educazione digitale?', options:['Sì, assolutamente','Sì, in parte','Non particolarmente','Non necessari'] },
+    { id:'p13', text:'I social media hanno cambiato la natura dei problemi portati in seduta negli ultimi anni?', options:['Molto','Abbastanza','Poco','Non lo noto'] },
+    { id:'p14', text:'Ritiene che i genitori siano sufficientemente consapevoli dei rischi dei social per i figli?', options:['Sì','In parte','No','Variabile'] },
+    { id:'p15', text:'Qual è il principale effetto psicologico che osserva nei giovani legato ai social?', options:['Ansia da prestazione','Dipendenza digitale','Bassa autostima','Isolamento sociale','Confronto sociale patologico'] },
+  ],
+  studenti: [
+    { id:'s1', text:'Quante ore al giorno trascorri sui social media?', options:['Meno di 1 ora','1–2 ore','2–4 ore','Più di 4 ore'] },
+    { id:'s2', text:'I social media influenzano la tua produttività nello studio?', options:['Molto negativamente','Abbastanza negativamente','Poco','Non influenzano','Positivamente'] },
+    { id:'s3', text:'Usi i social per trovare contenuti legati allo studio?', options:['Spesso','A volte','Raramente','Mai'] },
+    { id:'s4', text:'Ti sei mai sentito ansioso per non ricevere abbastanza interazioni (like, commenti)?', options:['Spesso','A volte','Raramente','Mai'] },
+    { id:'s5', text:'Confronti la tua vita con quella degli altri sui social?', options:['Spesso','A volte','Raramente','Mai'] },
+    { id:'s6', text:'I social ti hanno aiutato a costruire relazioni?', options:['Molto','Abbastanza','Poco','Per niente'] },
+    { id:'s7', text:'Senti che i social ti offrono opportunità professionali?', options:['Sì, molte','Qualcuna','Poche','Nessuna'] },
+    { id:'s8', text:'Hai mai vissuto episodi di cyberbullismo o comportamenti ostili online?', options:['Sì, più volte','Sì, una volta','No, ma ne sono testimone','No'] },
+    { id:'s9', text:'I social influenzano le tue opinioni politiche e sociali?', options:['Molto','In parte','Poco','Per niente'] },
+    { id:'s10', text:'Ti senti in grado di distinguere le notizie false da quelle vere sui social?', options:['Sempre','Quasi sempre','A volte','Raramente'] },
+    { id:'s11', text:'Hai mai fatto una pausa volontaria dai social?', options:['Sì, più volte','Sì, una volta','No, ma ci ho pensato',"No, non ne sento il bisogno"] },
+    { id:'s12', text:'I social media ti fanno sentire più connesso o più solo?', options:['Più connesso','Più solo','Dipende','Nessun effetto'] },
+    { id:'s13', text:'Pubblichi contenuti della tua vita sui social?', options:['Spesso','A volte','Raramente','Mai'] },
+    { id:'s14', text:"Ritieni che l'università dovrebbe insegnare un uso critico dei social?", options:['Sì, assolutamente','Sarebbe utile','Non necessario','No'] },
+    { id:'s15', text:'In che modo i social hanno influenzato la tua autostima?', options:['Positivamente','Negativamente',"Non l'hanno influenzata","In modo ambivalente"] },
+  ],
+  lavoratori: [
+    { id:'l1', text:"In che fascia d'età rientra?", options:['25–34','35–44','45–54','55 o più'] },
+    { id:'l2', text:'Usa i social media per scopi professionali?', options:['Sì, principalmente','Sì, in parte','No, solo personali','Non uso i social'] },
+    { id:'l3', text:'Quanto tempo dedica ai social nel tempo libero?', options:['Meno di 30 min','30–60 min','1–2 ore','Più di 2 ore'] },
+    { id:'l4', text:'Ritiene che i social abbiano cambiato le relazioni interpersonali nel lavoro?', options:['Molto','Abbastanza','Poco','Per niente'] },
+    { id:'l5', text:'Osservando i colleghi giovani, i social influenzano il loro rendimento lavorativo?', options:['Negativamente','Positivamente','In modo neutro','Non lo noto'] },
+    { id:'l6', text:'Ha mai vissuto tensioni lavorative causate da comportamenti sui social?', options:['Sì, più volte','Sì, una volta','No, ma ne sono testimone','No'] },
+    { id:'l7', text:'I social le hanno mai creato problemi nella sfera privata?', options:['Sì','No','In parte'] },
+    { id:'l8', text:"Come percepisce l'uso dei social da parte degli adolescenti di oggi?", options:['Preoccupante','Normale per la loro età','Opportunità di crescita',"Non ho un'opinione"] },
+    { id:'l9', text:'Pensa che le aziende dovrebbero regolamentare i social dei dipendenti?', options:['Sì, in modo rigido','Sì, con linee guida leggere','No','Non so'] },
+    { id:'l10', text:'I social hanno influenzato le sue scelte di consumo?', options:['Molto','Abbastanza','Poco','Per niente'] },
+    { id:'l11', text:'Ritiene che gli adolescenti di oggi siano più vulnerabili ai rischi online rispetto alla sua generazione?', options:['Sì, molto di più','Sì, un po\' di più','No, è simile','No, sono più preparati'] },
+    { id:'l12', text:'Se ha figli adolescenti, monitora il loro uso dei social?', options:['Sì ho figli, e monitoro','Sì ho figli, non monitoro','Non ho figli adolescenti'] },
+    { id:'l13', text:'Pensa che i social media siano uno strumento democratico o di controllo?', options:['Democratico','Di controllo','Entrambi','Nessuno dei due'] },
+    { id:'l14', text:"Come valuta l'impatto complessivo dei social sulla società?", options:['Molto positivo','Abbastanza positivo','Neutro','Abbastanza negativo','Molto negativo'] },
+    { id:'l15', text:'Ritiene necessaria una legislazione più severa sulle piattaforme per tutelare i minori?', options:['Sì, urgentemente','Sì, gradualmente','Non necessaria','No'] },
+  ],
+  educatori: [
+    { id:'e1', text:'In quale contesto opera principalmente?', options:['Centro educativo / doposcuola','Comunità / casa famiglia','Associazione giovanile','Altro'] },
+    { id:'e2', text:'Anni di esperienza con adolescenti:', options:['0–3','4–7','8–15','Oltre 15'] },
+    { id:'e3', text:'I ragazzi che segue parlano spontaneamente dei social con lei?', options:['Sì, spesso','A volte','Raramente','Mai'] },
+    { id:'e4', text:'Ha notato che i social influenzano le dinamiche del gruppo?', options:['Molto','Abbastanza','Poco','Per niente'] },
+    { id:'e5', text:'Ha mai gestito situazioni di disagio legate ai social?', options:['Sì, più volte','Sì, una volta','No, ma conosco casi','No'] },
+    { id:'e6', text:'Ritiene che i social favoriscano o ostacolino il lavoro educativo?', options:['Favoriscono','Ostacolano','Entrambi','Non influenzano'] },
+    { id:'e7', text:'I ragazzi che segue hanno una buona consapevolezza dei rischi online?', options:['Sì','Parzialmente','No','Varia molto'] },
+    { id:'e8', text:'Ha mai proposto attività di media literacy o educazione digitale?', options:['Sì, regolarmente','Sì, qualche volta','No, ma vorrei','No'] },
+    { id:'e9', text:'I social influenzano il modo in cui i ragazzi si relazionano con le figure adulte?', options:['Sì, li allontana','Sì, ma in modo neutro','No','Non so'] },
+    { id:'e10', text:"Come percepisce il ruolo dei social nella costruzione dell'identità adolescenziale?", options:['Molto rilevante','Abbastanza rilevante','Poco rilevante','Irrilevante'] },
+    { id:'e11', text:'I genitori dei ragazzi che segue sembrano consapevoli dei rischi dei social?', options:['Sì, la maggior parte','Solo alcuni','Pochi','Quasi nessuno'] },
+    { id:'e12', text:'Ritiene che le piattaforme social debbano avere maggiori responsabilità verso i minori?', options:['Sì, assolutamente','Sì, in parte','Non necessariamente','No'] },
+    { id:'e13', text:'Osserva differenze nell\'uso dei social tra ragazzi di diversa estrazione sociale?', options:['Sì, molto','Qualche differenza','Poca differenza','Nessuna differenza'] },
+    { id:'e14', text:'I social possono essere uno strumento di supporto nel lavoro educativo?', options:['Sì, molto utile','Sì, con limiti','Difficilmente','No'] },
+    { id:'e15', text:'Qual è la principale difficoltà che osserva nei ragazzi legata ai social?', options:['Dipendenza','Confronto sociale','Disinformazione','Cyberbullismo','Perdita di tempo'] },
+  ],
+};
+
+const SOCIALS = [
+  { id:'youtube',    name:'YouTube'    },
+  { id:'instagram',  name:'Instagram'  },
+  { id:'tiktok',     name:'TikTok'     },
+  { id:'whatsapp',   name:'WhatsApp'   },
+  { id:'telegram',   name:'Telegram'   },
+  { id:'facebook',   name:'Facebook'   },
+  { id:'x',          name:'X / Twitter'},
+  { id:'snapchat',   name:'Snapchat'   },
+  { id:'twitch',     name:'Twitch'     },
+  { id:'linkedin',   name:'LinkedIn'   },
+  { id:'reddit',     name:'Reddit'     },
+  { id:'bereal',     name:'BeReal'     },
+];
+
+// ─── STATE ────────────────────────────────────
+const state = {
+  profile:     null,
+  age:         null,
+  socials:     [],
+  answers:     {},
+  openAnswer:  '',
+  sessionId:   'sess_' + Math.random().toString(36).substr(2, 9),
+  currentPage: 1,
+  totalPages:  18,
+};
+
+const PROFILE_LABELS = {
+  adolescenti: 'Adolescente',
+  studenti:    'Studente',
+  lavoratori:  'Lavoratore',
+  genitori:    'Genitore',
+  educatori:   'Educatore',
+  insegnanti:  'Insegnante',
+  psicologi:   'Psicologo',
+};
+
+const LETTERS = ['A','B','C','D','E','F'];
+
+// ─── INIT ─────────────────────────────────────
+function init() {
+  buildSocialGrid();
+  buildQuestionPages();
+}
+
+function buildSocialGrid() {
+  const grid = document.getElementById('social-grid');
+  grid.innerHTML = SOCIALS.map(s => `
+    <div class="social-chip" data-social="${s.id}" onclick="toggleSocial(this)">
+      <span class="chip-name">${s.name}</span>
+    </div>
+  `).join('');
+}
+
+function buildQuestionPages() {
+  const container = document.getElementById('questions-container');
+  container.innerHTML = '';
+  // Placeholder pages 3-17 (filled when profile is chosen)
+  for (let i = 3; i <= 17; i++) {
+    const div = document.createElement('div');
+    div.className = 'page';
+    div.id = `page-${i}`;
+    div.style.paddingTop = '64px';
+    div.innerHTML = `<div class="page-content" id="q-content-${i}">
+      <div class="step-tag">Caricamento…</div>
+    </div>`;
+    container.appendChild(div);
+  }
+}
+
+function renderQuestionsForProfile(profile) {
+  const questions = QUESTIONS[profile] || [];
+  for (let qi = 0; qi < 15; qi++) {
+    const pageNum = qi + 3;
+    const q = questions[qi];
+    const content = document.getElementById(`q-content-${pageNum}`);
+    if (!content || !q) continue;
+
+    const optionsHtml = q.options.map((opt, oi) => `
+      <div class="option-card" data-qid="${q.id}" data-value="${opt}" data-idx="${oi}"
+           onclick="selectAnswer(this, '${q.id}', '${opt}', ${pageNum})">
+        <div class="option-circle">
+          <span class="option-letter">${LETTERS[oi]}</span>
+        </div>
+        <span class="option-text">${opt}</span>
+      </div>
+    `).join('');
+
+    content.innerHTML = `
+      <div class="step-tag">Domanda ${qi + 1} di 15</div>
+      <div class="question-text">${q.text}</div>
+      <div class="options-list" id="options-${pageNum}">
+        ${optionsHtml}
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="goToPage(${pageNum - 1})">← Indietro</button>
+        <button class="btn btn-primary" id="btn-next-${pageNum}" disabled
+                onclick="goToPage(${pageNum + 1})">
+          ${pageNum === 17 ? 'Ultima domanda →' : 'Avanti →'}
+        </button>
+      </div>
+    `;
+  }
+}
+
+// ─── NAVIGATION ───────────────────────────────
+function goToPage(n) {
+  // Nascondi tutte le pagine
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+
+  const target = document.getElementById(`page-${n}`);
+  if (!target) return;
+  target.classList.add('active');
+  state.currentPage = n;
+  window.scrollTo(0, 0);
+
+  // Topbar
+  const topbar = document.getElementById('topbar');
+  if (n === 1) {
+    topbar.style.display = 'none';
+  } else {
+    topbar.style.display = 'flex';
+    updateProgress(n);
+  }
+}
+
+function updateProgress(pageNum) {
+  // Pagina 2 = step 1, pagine 3-17 = steps 2-16, pagina 18 = step 17
+  const step  = pageNum - 1;
+  const total = 17;
+  const pct   = Math.round((step / total) * 100);
+  document.getElementById('progress-fill').style.width  = pct + '%';
+  document.getElementById('progress-label').textContent = `${step} / ${total}`;
+  document.getElementById('topbar-profile').textContent =
+    PROFILE_LABELS[state.profile] || '';
+}
+
+// ─── PROFILE SELECTION ────────────────────────
+function selectProfile(card) {
+  document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+  state.profile = card.dataset.profile;
+  document.getElementById('btn-start').disabled = false;
+  renderQuestionsForProfile(state.profile);
+}
+
+// ─── DEMOGRAPHICS ────────────────────────────
+function toggleSocial(chip) {
+  const social = chip.dataset.social;
+  if (chip.classList.contains('selected')) {
+    chip.classList.remove('selected');
+    state.socials = state.socials.filter(s => s !== social);
+  } else {
+    chip.classList.add('selected');
+    state.socials.push(social);
+  }
+  checkDemoComplete();
+}
+
+function checkDemoComplete() {
+  const age = parseInt(document.getElementById('age-input').value);
+  state.age = age || null;
+  const valid = age && age > 5 && age < 110 && state.socials.length > 0;
+  document.getElementById('btn-demo-next').disabled = !valid;
+  autoSave();
+}
+
+// ─── ANSWER SELECTION ────────────────────────
+function selectAnswer(card, qid, value, pageNum) {
+  // Deselect altri nella stessa pagina
+  document.querySelectorAll(`#options-${pageNum} .option-card`)
+    .forEach(c => c.classList.remove('selected'));
+  card.classList.add('selected');
+
+  state.answers[qid] = value;
+
+  const btn = document.getElementById(`btn-next-${pageNum}`);
+  if (btn) btn.disabled = false;
+
+  autoSave();
+}
+
+// ─── OPEN ANSWER ─────────────────────────────
+function updateCharCount() {
+  const ta  = document.getElementById('open-answer');
+  const cnt = document.getElementById('char-count');
+  state.openAnswer = ta.value;
+  cnt.textContent  = `${ta.value.length} / 1000`;
+}
+
+// ─── AUTO SAVE ────────────────────────────────
+async function autoSave() {
+  try {
+    await fetch('/api/partial', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: state.sessionId,
+        profile:    state.profile,
+        data: {
+          age:     state.age,
+          socials: state.socials,
+          answers: state.answers,
+        }
+      })
+    });
+  } catch(e) { /* offline, ignora */ }
+}
+
+// ─── SUBMIT ───────────────────────────────────
+async function submitSurvey() {
+  state.openAnswer = document.getElementById('open-answer').value;
+
+  try {
+    const res = await fetch('/api/response', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id:  state.sessionId,
+        profile:     state.profile,
+        age:         state.age,
+        socials:     state.socials,
+        answers:     state.answers,
+        open_answer: state.openAnswer,
+      })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      goToPage('thanks');
+    }
+  } catch(e) {
+    // Fallback: mostra grazie comunque (offline mode)
+    goToPage('thanks');
+  }
+}
+
+// ─── START ────────────────────────────────────
+init();
+</script>
+</body>
+</html>
