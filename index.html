@@ -944,6 +944,9 @@ h1 em {
      ════════════════════════════════════════════ -->
 <script>
 
+// ─── API URL ─────────────────────────────────
+const API = 'https://server-x2rd.onrender.com';
+
 // ─── DOMANDE PER PROFILO ──────────────────────
 const QUESTIONS = {
   adolescenti: [
@@ -1260,7 +1263,7 @@ function updateCharCount() {
 // ─── AUTO SAVE ────────────────────────────────
 async function autoSave() {
   try {
-    await fetch('/api/partial', {
+    await fetch(`${API}/api/partial`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1281,7 +1284,7 @@ async function submitSurvey() {
   state.openAnswer = document.getElementById('open-answer').value;
 
   try {
-    const res = await fetch('/api/response', {
+    const res = await fetch(`${API}/api/response`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

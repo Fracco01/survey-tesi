@@ -23,7 +23,7 @@ const app  = express();
 const PORT = process.env.PORT || 3001;
 
 // ─── MIDDLEWARE ────────────────────────────────
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(express.json({ limit: '2mb' }));
 app.use(express.static(path.join(__dirname, '../frontend')));
 
